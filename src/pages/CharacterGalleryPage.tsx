@@ -5,7 +5,13 @@ import { Link } from 'react-router-dom';
 
 type SortOption = 'default' | 'name-asc' | 'name-desc';
 
-export default function CharacterGalleryPage() {
+type CharacterGalleryPageProps = {
+  localCharacters: Character[];
+};
+
+export default function CharacterGalleryPage({
+  localCharacters,
+}: CharacterGalleryPageProps) {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -15,7 +21,10 @@ export default function CharacterGalleryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('default');
 
-  const filteredCharacters = characters.filter((character) =>
+  const allCharacters =
+    currentPage === 1 ? [...localCharacters, ...characters] : characters;
+
+  const filteredCharacters = allCharacters.filter((character) =>
     character.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
@@ -48,7 +57,7 @@ export default function CharacterGalleryPage() {
       }
     }
 
-    loadCharacters();
+    void loadCharacters();
   }, [currentPage]);
 
   function handlePreviousPage(): void {
