@@ -6,6 +6,8 @@ export default function CharacterGalleryPage() {
     const [characters, setCharacters] = useState<Character[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
         async function loadCharacters(): Promise<void> {
@@ -13,9 +15,10 @@ export default function CharacterGalleryPage() {
                 setIsLoading(true);
                 setError("");
 
-                const data = await getCharacters();
+                const data = await getCharacters(currentPage);
 
                 setCharacters(data.results);
+                setTotalPages(data.info.pages);
             } catch {
                 setError("Could not load characters. Please try again.");
             } finally {
@@ -24,7 +27,7 @@ export default function CharacterGalleryPage() {
         }
 
         loadCharacters();
-    }, []);
+    }, [currentPage]);
 
     if (isLoading) {
         return (
@@ -40,6 +43,18 @@ export default function CharacterGalleryPage() {
                 <p>{error}</p>
             </main>
         );
+    }
+
+    function handlePreviousPage(): void {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    }
+
+    function handleNextPage(): void {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
     }
 
     return (
@@ -59,6 +74,29 @@ export default function CharacterGalleryPage() {
                     <p>Species: {character.species}</p>
                 </article>
             ))}
+
+            <nav aria-label="Character pagination">
+                <button
+                    type="button"
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                >
+                    Previous
+                </button>
+
+                <span>
+        Page {currentPage} of {totalPages}
+    </span>
+
+                <button
+                    type="button"
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                >
+                    Next
+                </button>
+            </nav>
+
         </main>
     );
 }
