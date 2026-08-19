@@ -2,12 +2,33 @@ import { useEffect, useState } from 'react';
 import { getCharacters } from '../services/characterApi';
 import type { Character } from '../types/character';
 
+type SortOption = 'default' | 'name-asc' | 'name-desc';
+
 export default function CharacterGalleryPage() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOption, setSortOption] = useState<SortOption>('default');
+
+  const filteredCharacters = characters.filter((character) =>
+    character.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  const visibleCharacters = [...filteredCharacters].sort((a, b) => {
+    if (sortOption === 'name-asc') {
+      return a.name.localeCompare(b.name);
+    }
+
+    if (sortOption === 'name-desc') {
+      return b.name.localeCompare(a.name);
+    }
+
+    return 0;
+  });
 
   useEffect(() => {
     async function loadCharacters(): Promise<void> {
@@ -29,6 +50,18 @@ export default function CharacterGalleryPage() {
     loadCharacters();
   }, [currentPage]);
 
+  function handlePreviousPage(): void {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  }
+
+  function handleNextPage(): void {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  }
+
   if (isLoading) {
     return (
       <main>
@@ -45,32 +78,46 @@ export default function CharacterGalleryPage() {
     );
   }
 
-  function handlePreviousPage(): void {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  }
-
-  function handleNextPage(): void {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  }
-
   return (
     <main>
       <h1>Characters</h1>
 
-      {characters.map((character) => (
-        <article key={character.id}>
-          <img src={character.image} alt={character.name} />
+      <label htmlFor="character-search">Search characters</label>
 
-          <h2>{character.name}</h2>
+      <input
+        id="character-search"
+        type="search"
+        value={searchTerm}
+        onChange={(event) => setSearchTerm(event.target.value)}
+        placeholder="Search by name..."
+      />
 
-          <p>Status: {character.status}</p>
-          <p>Species: {character.species}</p>
-        </article>
-      ))}
+      <label htmlFor="character-sort">Sort by</label>
+
+      <select
+        id="character-sort"
+        value={sortOption}
+        onChange={(event) => setSortOption(event.target.value as SortOption)}
+      >
+        <option value="default">Default</option>
+        <option value="name-asc">Name A-Z</option>
+        <option value="name-desc">Name Z-A</option>
+      </select>
+
+      {visibleCharacters.length === 0 ? (
+        <p>No characters found.</p>
+      ) : (
+        visibleCharacters.map((character) => (
+          <article key={character.id}>
+            <img src={character.image} alt={character.name} />
+
+            <h2>{character.name}</h2>
+
+            <p>Status: {character.status}</p>
+            <p>Species: {character.species}</p>
+          </article>
+        ))
+      )}
 
       <nav aria-label="Character pagination">
         <button
