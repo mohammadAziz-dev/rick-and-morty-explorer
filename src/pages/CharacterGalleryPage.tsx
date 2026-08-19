@@ -3,14 +3,18 @@ import { getCharacters } from '../services/characterApi';
 import type { Character } from '../types/character';
 import { Link } from 'react-router-dom';
 
-type SortOption = 'default' | 'name-asc' | 'name-desc';
+type SortOption = 'default' | 'name-asc' | 'name-desc' | 'upvotes-desc';
 
 type CharacterGalleryPageProps = {
   localCharacters: Character[];
+  votedCharacters: Record<number, boolean>;
+  onUpvote: (characterId: number) => void;
 };
 
 export default function CharacterGalleryPage({
   localCharacters,
+  votedCharacters,
+  onUpvote,
 }: CharacterGalleryPageProps) {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,6 +39,13 @@ export default function CharacterGalleryPage({
 
     if (sortOption === 'name-desc') {
       return b.name.localeCompare(a.name);
+    }
+
+    if (sortOption === 'upvotes-desc') {
+      return (
+        Number(Boolean(votedCharacters[b.id])) -
+        Number(Boolean(votedCharacters[a.id]))
+      );
     }
 
     return 0;
@@ -112,6 +123,7 @@ export default function CharacterGalleryPage({
         <option value="default">Default</option>
         <option value="name-asc">Name A-Z</option>
         <option value="name-desc">Name Z-A</option>
+        <option value="upvotes-desc">Most Upvoted</option>
       </select>
 
       {visibleCharacters.length === 0 ? (
@@ -125,6 +137,11 @@ export default function CharacterGalleryPage({
 
             <p>Status: {character.status}</p>
             <p>Species: {character.species}</p>
+            <p>Upvotes: {votedCharacters[character.id] ? 1 : 0}</p>
+
+            <button type="button" onClick={() => onUpvote(character.id)}>
+              {votedCharacters[character.id] ? 'Remove Upvote' : 'Upvote'}
+            </button>
             <Link to={`/characters/${character.id}`}>View Details</Link>
           </article>
         ))
