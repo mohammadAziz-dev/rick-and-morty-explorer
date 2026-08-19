@@ -10,12 +10,22 @@ import type { Character } from './types/character';
 
 function App() {
   const [localCharacters, setLocalCharacters] = useState<Character[]>([]);
+  const [votedCharacters, setVotedCharacters] = useState<
+    Record<number, boolean>
+  >({});
 
   function addCharacter(character: Character): void {
     setLocalCharacters((currentCharacters) => [
       character,
       ...currentCharacters,
     ]);
+  }
+
+  function handleUpvote(characterId: number): void {
+    setVotedCharacters((currentVotes) => ({
+      ...currentVotes,
+      [characterId]: !currentVotes[characterId],
+    }));
   }
 
   return (
@@ -27,7 +37,13 @@ function App() {
 
         <Route
           path="/characters"
-          element={<CharacterGalleryPage localCharacters={localCharacters} />}
+          element={
+            <CharacterGalleryPage
+              localCharacters={localCharacters}
+              votedCharacters={votedCharacters}
+              onUpvote={handleUpvote}
+            />
+          }
         />
 
         <Route
