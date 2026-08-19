@@ -1,7 +1,7 @@
 export default function CharacterDetailPage() {
-    return (
-        <main>
-            <h1>Character Details</h1>
-        </main>
-    );
+  return (
+    <main>
+      <h1>Character Details</h1>
+    </main>
+  );
 }
