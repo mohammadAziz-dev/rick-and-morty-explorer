@@ -6,6 +6,16 @@ export type Character = {
   type: string;
   gender: string;
   image: string;
+
+  origin: {
+    name: string;
+    url: string;
+  };
+
+  location: {
+    name: string;
+    url: string;
+  };
 };
 
 export type CharacterApiResponse = {
