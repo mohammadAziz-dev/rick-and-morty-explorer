@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getCharacters } from '../services/characterApi';
 import type { Character } from '../types/character';
+import { Link } from 'react-router-dom';
 
 type SortOption = 'default' | 'name-asc' | 'name-desc';
 
@@ -115,6 +116,7 @@ export default function CharacterGalleryPage() {
 
             <p>Status: {character.status}</p>
             <p>Species: {character.species}</p>
+            <Link to={`/characters/${character.id}`}>View Details</Link>
           </article>
         ))
       )}
